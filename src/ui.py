@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+from core.suggestions_engine import SuggestionEngine
 
 from src.autocad_handler import AutoCADHandler
 
@@ -11,6 +12,7 @@ class CopilotUI:
         self.root.geometry('600x400')
 
         self.acad_handler = AutoCADHandler()
+        self.suggestion_engine = SuggestionEngine()
 
         self.tabs = ttk.Notebook(self.root)
         self.tab_monitor = ttk.Frame(self.tabs)
@@ -62,6 +64,16 @@ class CopilotUI:
 
             self.log("Informações do projeto:")
             self.acad_handler.capturar_informacoes_do_projeto()
+
+            objetos = list(self.acad_handler.acad.iter_objects())
+            sugestoes = self.suggestion_engine.gerar_sugestoes_basicas(objetos)
+
+            if sugestoes:
+                self.log("💡 Sugestões do Copilot:")
+                for sugestao in sugestoes:
+                    self.log(f"-{sugestao}")
+            else:
+                self.log("🤖 Copilot não encontrou sugestões no momento")
 
         except Exception as e:
             self.log(f"Erro: {str(e)}")
